@@ -3,20 +3,20 @@ ARCH=$(shell uname -m)
 
 GIMME_AWS_CREDS_VER=2.4.3
 AWSCLI_VER=1.20.9
+DOCKER_ARGS=--build-arg GIMME_AWS_CREDS_VER=$(GIMME_AWS_CREDS_VER) --build-arg AWSCLI_VER=$(AWSCLI_VER)
 
 all: gimme-aws-creds awscli
 
-base: Dockerfile
-	docker build --target builder -t $(PREFIX)/aws-tools-builder:$(ARCH) .
+gimme-aws-creds:
+	docker build --target $@ $(DOCKER_ARGS) -t $(PREFIX)/$@:$(GIMME_AWS_CREDS_VER)-$(ARCH) .
+	docker tag $(PREFIX)/$@:$(GIMME_AWS_CREDS_VER)-$(ARCH) $(PREFIX)/$@:$(ARCH)
+	docker push $(PREFIX)/$@:$(GIMME_AWS_CREDS_VER)-$(ARCH)
+	docker push $(PREFIX)/$@:$(ARCH)
 
-gimme-aws-creds: base
-	docker build --target gimme-aws-creds --build-arg GIMME_AWS_CREDS_VER=$(GIMME_AWS_CREDS_VER) -t $(PREFIX)/gimme-aws-creds:$(GIMME_AWS_CREDS_VER)-$(ARCH) .
-	docker tag $(PREFIX)/gimme-aws-creds:$(GIMME_AWS_CREDS_VER)-$(ARCH) $(PREFIX)/gimme-aws-creds:$(ARCH)
-	docker push $(PREFIX)/gimme-aws-creds:$(GIMME_AWS_CREDS_VER)-$(ARCH)
-	docker push $(PREFIX)/gimme-aws-creds:$(ARCH)
+awscli:
+	docker build --target $@ $(DOCKER_ARGS) -t $(PREFIX)/$@:$(AWSCLI_VER)-$(ARCH) .
+	docker tag $(PREFIX)/$@:$(AWSCLI_VER)-$(ARCH) $(PREFIX)/$@:$(ARCH)
+	docker push $(PREFIX)/$@:$(AWSCLI_VER)-$(ARCH)
+	docker push $(PREFIX)/$@:$(ARCH)
 
-awscli: base
-	docker build --target awscli --build-arg AWSCLI_VER=$(AWSCLI_VER) -t $(PREFIX)/awscli:$(AWSCLI_VER)-$(ARCH) .
-	docker tag $(PREFIX)/awscli:$(AWSCLI_VER)-$(ARCH) $(PREFIX)/awscli:$(ARCH)
-	docker push $(PREFIX)/awscli:$(AWSCLI_VER)-$(ARCH) 
-	docker push $(PREFIX)/awscli:$(ARCH)
+
