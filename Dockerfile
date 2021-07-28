@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
         libssl-dev \
  && rm -rf /var/lib/apt/lists/*
 
-ARG GIMME_AWS_CREDS_VER=2.4.3
+ARG GIMME_AWS_CREDS_VER
 RUN . $HOME/.cargo/env \
  && mkdir wheels && cd wheels \
  && pip3 wheel gimme-aws-creds==$GIMME_AWS_CREDS_VER
@@ -37,7 +37,7 @@ RUN pip3 install /wheels/*.whl \
 
 ######################################################
 FROM base as awscli
-ARG AWSCLI_VER=1.20.9
+ARG AWSCLI_VER
 RUN pip3 install awscli==$AWSCLI_VER
 ENTRYPOINT ["aws"]
 
